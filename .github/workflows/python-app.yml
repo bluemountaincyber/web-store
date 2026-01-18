@@ -1,0 +1,39 @@
+name: OWASP ZAP Full Scan
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  zap_scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      - name: Install dependencies
+        run: |
+          pip install flask
+
+      - name: Start Flask App in Background
+        run: |
+          python app.py &
+          FLASK_PID=$!
+          echo $FLASK_PID > flask.pid
+          sleep 5  # Wait for the server to start
+
+      - name: Run OWASP ZAP Full Scan
+        uses: zaproxy/action-full-scan@v0.7.0
+        with:
+          target: "http://localhost:5150"
+
+      - name: Stop Flask App
+        run: |
+          kill $(cat flask.pid)
