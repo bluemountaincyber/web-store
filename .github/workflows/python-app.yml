@@ -24,7 +24,7 @@ jobs:
 
       - name: Start Flask App in Background
         run: |
-          python app.py &
+          python main.py &
           FLASK_PID=$!
           echo $FLASK_PID > flask.pid
           sleep 5  # Wait for the server to start
